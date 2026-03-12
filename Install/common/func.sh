@@ -94,9 +94,17 @@ get_as_func() {
     for cur_as in $as_list; do
       if [[ "$DEBUG" == 1 ]]; then out=2; echo -e "\n$cur_as" >&$out; fi
       for i in $out 1; do
-        curl -sk "https://stat.ripe.net/data/announced-prefixes/data.json?resource=$cur_as" | jq -r '.data.prefixes[] | select(.prefix | contains(".")) | .prefix' | iprange - >&$i
-        #whois -h whois.radb.net -- "-i origin $cur_as" | awk '/^route:/{print $2}' | iprange - >&$i
-       done
+        result=""
+        result=$(curl -sk "https://stat.ripe.net/data/announced-prefixes/data.json?resource=$cur_as" 2>/dev/null | jq -r '.data.prefixes[] | select(.prefix | contains(".")) | .prefix')
+        if [[ -z "$result" ]]; then
+          cur_as_num="${cur_as:2}"
+          result=$(curl -sk "https://api.routeviews.org/guest/asn/$cur_as_num?af=4" 2>/dev/null | jq -r '.[]')
+        fi
+        if [[ -z "$result" ]]; then
+          result=$(whois -h whois.radb.net -- "-i origin $cur_as" | awk '/^route:/{print $2}')
+        fi
+        echo "$result" | iprange - >&$i
+      done
     done
       awk '!/^AS([0-9]{1,5})/{print $0}' "$1"
   else
