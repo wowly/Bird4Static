@@ -154,7 +154,7 @@ configure_bgp_mode_func(){
       BGP_IP="45.154.73.71" && BGP_AS="65432"
     fi
   fi
-  echo -e "You are select BGP $BGP_IP AS$BGP_AS"
+  echo -e "You have selected $BGP_IP AS$BGP_AS as BGP"
   sed -i 's/BPGIPINPUT/'$BGP_IP'/; s/BGPASINPUT/'$BGP_AS'/' $SYSTEM_FOLDER/etc/bird.conf
   sed -i 's/BPGIPINPUT/'$BGP_IP'/; s/BGPASINPUT/'$BGP_AS'/' $SCRIPTS/*.sh
 }
@@ -175,7 +175,7 @@ config_isp_func(){
   ISP_IP=$(ip addr show $ISP | awk -F" |/" '{gsub(/^ +/,"")}/inet /{print $2}')
   if [ $(echo "$ISP_IP" | grep -cE '^([0-9]{1,3}.){3}[0-9]{1,3}$' ) != 0 ]; then 
     echo "Your id is $ISP_IP"; 
-  else You have selected
+  else
     ISP_IP="123.123.123.123";
   fi
   sed -i 's/ISPINPUT/'$ISP'/' $SCRIPTS/*.sh
